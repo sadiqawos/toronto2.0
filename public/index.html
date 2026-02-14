@@ -7,6 +7,7 @@
 <meta name="description" content="Tell us your Toronto story. We'll trace it back to the municipal code that caused it.">
 <meta property="og:title" content="Toronto 2.0">
 <meta property="og:description" content="Your city runs on code. Tell us a story. We'll show you the source.">
+<link rel="icon" type="image/svg+xml" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -59,7 +60,7 @@
     animation: fadeIn 0.8s ease;
   }
 
-  .metro-logo-wrap svg { width: 200px; height: auto; }
+  .metro-logo-wrap svg { width: 140px; height: 140px; }
 
   .metro-label {
     font-size: 9px;
@@ -674,43 +675,6 @@
 <body>
 
 <div class="container">
-
-  <!-- ════ METRO LOGO ════ -->
-  <div class="metro-logo-wrap">
-    <svg viewBox="0 0 304 56" xmlns="http://www.w3.org/2000/svg" aria-label="Metro Toronto — six interlocking loops">
-      <g fill="none" stroke="#1B4F72" stroke-width="3">
-        <ellipse cx="28" cy="28" rx="26" ry="20"/>
-        <ellipse cx="76" cy="28" rx="26" ry="20"/>
-        <ellipse cx="124" cy="28" rx="26" ry="20"/>
-        <ellipse cx="172" cy="28" rx="26" ry="20"/>
-        <ellipse cx="220" cy="28" rx="26" ry="20"/>
-        <ellipse cx="268" cy="28" rx="26" ry="20"/>
-      </g>
-      <!-- Weave intersections -->
-      <g stroke="#FAFAF7" stroke-width="6" stroke-linecap="round">
-        <line x1="46" y1="10" x2="58" y2="14"/><line x1="46" y1="46" x2="58" y2="42"/>
-        <line x1="94" y1="10" x2="106" y2="14"/><line x1="94" y1="46" x2="106" y2="42"/>
-        <line x1="142" y1="10" x2="154" y2="14"/><line x1="142" y1="46" x2="154" y2="42"/>
-        <line x1="190" y1="10" x2="202" y2="14"/><line x1="190" y1="46" x2="202" y2="42"/>
-        <line x1="238" y1="10" x2="250" y2="14"/><line x1="238" y1="46" x2="250" y2="42"/>
-      </g>
-      <!-- Redraw "over" arcs at intersections -->
-      <g fill="none" stroke="#1B4F72" stroke-width="3">
-        <!-- Odd loops go over at top -->
-        <path d="M 44 12 Q 52 8 60 12"/>
-        <path d="M 140 12 Q 148 8 156 12"/>
-        <path d="M 236 12 Q 244 8 252 12"/>
-        <!-- Even loops go over at bottom -->
-        <path d="M 44 44 Q 52 48 60 44"/>
-        <path d="M 92 44 Q 100 48 108 44"/>
-        <path d="M 140 44 Q 148 48 156 44"/>
-        <path d="M 188 44 Q 196 48 204 44"/>
-        <path d="M 236 44 Q 244 48 252 44"/>
-      </g>
-    </svg>
-    <div class="metro-label">Municipality of Metropolitan Toronto</div>
-  </div>
-
   <!-- ════ HEADER ════ -->
   <header>
     <div class="version-tag">Public Beta</div>
@@ -831,7 +795,7 @@
       <div class="footer-left">
         TORONTO 2.0 — AN OPEN INQUIRY
         <span class="metro-footnote">
-          The six loops above are the logo of the Municipality of Metropolitan Toronto (1953–1998) — six cities, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
+          The five loops above are the logo of the Municipality of Metropolitan Toronto (1953–1998) — five rings, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
         </span>
       </div>
       <div class="footer-right">

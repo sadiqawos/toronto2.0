@@ -1,0 +1,10 @@
+node_modules/
+.env
+toronto2.db
+toronto2.db-wal
+toronto2.db-shm
+codes.db
+codes.db-wal
+codes.db-shm
+.cache/
+.DS_Store
