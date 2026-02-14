@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toronto 2.0 — Trace the code behind your city</title>
+<meta name="description" content="Tell us your Toronto story. We'll trace it back to the municipal code that caused it.">
+<meta property="og:title" content="Toronto 2.0">
+<meta property="og:description" content="Your city runs on code. Tell us a story. We'll show you the source.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --fg: #1C1917;
+    --muted: #8B8680;
+    --muted-light: #B5B0A8;
+    --blue: #1B4F72;
+    --blue-mid: #2874A6;
+    --blue-light: #D4E6F1;
+    --blue-pale: #EBF2F8;
+    --red: #C0392B;
+    --red-pale: #FADBD8;
+    --code-bg: #F3F1ED;
+    --card-bg: #FFFFFF;
+    --border: #DDD9D3;
+    --border-light: #ECEAE5;
+    --hover: #F0EFEB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  .divider { width: 100%; height: 1px; background: var(--border); margin: 56px 0; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  /* ═══════════════════════════════════
+     METRO LOGO
+  ═══════════════════════════════════ */
+  .metro-logo-wrap {
+    padding: 48px 0 8px;
+    animation: fadeIn 0.8s ease;
+  }
+
+  .metro-logo-wrap svg { width: 200px; height: auto; }
+
+  .metro-label {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-top: 6px;
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════
+     HEADER
+  ═══════════════════════════════════ */
+  header { padding: 36px 0 0; }
+
+  .version-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    padding: 4px 10px;
+    margin-bottom: 36px;
+    animation: fadeIn 0.8s 0.15s ease both;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(52px, 10vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+    animation: slideUp 0.7s 0.25s ease both;
+  }
+
+  h1 .version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(26px, 5vw, 44px);
+    font-weight: 300;
+    color: var(--muted);
+  }
+
+  .subtitle {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+    max-width: 480px; margin-bottom: 0;
+    animation: slideUp 0.7s 0.4s ease both;
+  }
+
+  /* ═══════════════════════════════════
+     LIVE FEED
+  ═══════════════════════════════════ */
+  .feed-section { padding: 0 0 8px; }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .feed-count {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .feed-tabs {
+    display: flex;
+    gap: 0;
+  }
+
+  .feed-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .feed-tab:first-child { border-radius: 3px 0 0 3px; }
+  .feed-tab:last-child { border-radius: 0 3px 3px 0; margin-left: -1px; }
+  .feed-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  .feed-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .feed-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    border: 1px dashed var(--border);
+  }
+
+  /* Feed Card */
+  .feed-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+    overflow: hidden;
+  }
+
+  .feed-card:hover { border-color: var(--blue); }
+
+  .feed-card-header {
+    padding: 24px 24px 20px;
+    cursor: pointer;
+    display: flex;
+    gap: 16px;
+  }
+
+  .feed-card-body { flex: 1; min-width: 0; }
+
+  .feed-story {
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--fg);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .feed-card.expanded .feed-story {
+    -webkit-line-clamp: unset;
+  }
+
+  .feed-meta {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .feed-hood {
+    font-size: 11px;
+    color: var(--blue);
+    background: var(--blue-pale);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .feed-date { font-size: 11px; color: var(--muted-light); }
+
+  .feed-summary-line {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .feed-trace-count {
+    font-size: 11px;
+    color: var(--blue);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .feed-trace-count::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--blue);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Feed card expanded trace */
+  .feed-card-trace {
+    display: none;
+    padding: 0 24px 24px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .feed-card.expanded .feed-card-trace { display: block; }
+
+  .feed-card-trace .code-block { margin-top: 16px; }
+  .feed-card-trace .trace-annotation { font-size: 12px; }
+
+  /* Feed card actions */
+  .feed-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    border-top: 1px solid var(--border-light);
+    background: var(--bg);
+  }
+
+  .upvote-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .upvote-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .upvote-btn.voted { background: var(--blue-pale); border-color: var(--blue); color: var(--blue); }
+
+  .expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 4px 0;
+    letter-spacing: 0.5px;
+  }
+
+  .expand-btn:hover { text-decoration: underline; }
+
+  .feed-load-more {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .feed-load-more:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ═══════════════════════════════════
+     GENERATOR
+  ═══════════════════════════════════ */
+  .generator-section { padding: 0 0 8px; }
+
+  .generator-section h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .generator-section .subtitle { margin-bottom: 32px; }
+
+  .input-area { position: relative; margin-bottom: 20px; }
+
+  .story-input {
+    width: 100%;
+    min-height: 120px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 20px 60px 20px 20px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.3s;
+    line-height: 1.6;
+  }
+
+  .story-input:focus { border-color: var(--blue); }
+  .story-input::placeholder { color: var(--muted-light); }
+
+  .mic-btn {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .mic-btn:hover { background: var(--blue-pale); border-color: var(--blue); }
+  .mic-btn.recording { background: var(--red); border-color: var(--red); animation: micPulse 1.5s infinite; }
+  .mic-btn svg { width: 16px; height: 16px; }
+  .mic-btn.recording svg path { fill: white; }
+
+  .input-bottom {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .hood-input {
+    flex: 1;
+    min-width: 180px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 300;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .hood-input:focus { border-color: var(--blue); }
+  .hood-input::placeholder { color: var(--muted-light); }
+
+  .trace-btn {
+    background: var(--blue);
+    border: none;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  .trace-btn:hover { background: var(--blue-mid); }
+  .trace-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Processing */
+  .processing {
+    display: none;
+    margin-top: 28px;
+    padding: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+  }
+
+  .processing.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  .scan-line { font-size: 12px; color: var(--muted); line-height: 2; font-weight: 300; }
+  .scan-line .active { color: var(--blue); }
+  .scan-line .done { color: var(--muted-light); }
+  .scan-cursor {
+    display: inline-block;
+    width: 7px; height: 14px;
+    background: var(--blue);
+    margin-left: 4px;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  /* Error */
+  .error-msg {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--red);
+    background: var(--red-pale);
+    font-size: 13px;
+    color: var(--red);
+    line-height: 1.6;
+  }
+
+  .error-msg.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  /* Result area */
+  .result-area { display: none; margin-top: 28px; }
+  .result-area.visible { display: block; }
+
+  .result-trace-card {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .result-trace-card.revealed { opacity: 1; transform: translateY(0); }
+
+  /* Share bar */
+  .share-bar {
+    display: none;
+    margin-top: 24px;
+    padding: 16px 20px;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-light);
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .share-bar.visible { display: flex; animation: fadeIn 0.5s ease; }
+
+  .share-bar-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .share-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 2px;
+  }
+
+  .share-btn:hover { background: var(--blue); color: white; }
+
+  /* ═══════════════════════════════════
+     SHARED: Code Blocks & Traces
+  ═══════════════════════════════════ */
+  .story-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+  }
+
+  .story-card::before {
+    content: '\201C';
+    font-family: 'Instrument Serif', serif;
+    font-size: 56px;
+    color: var(--blue);
+    opacity: 0.15;
+    position: absolute;
+    top: 6px; left: 18px;
+    line-height: 1;
+  }
+
+  .story-text {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--fg);
+    padding-left: 6px;
+  }
+
+  .code-block {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .code-block:hover { border-left-color: var(--fg); background: var(--code-bg); }
+
+  .code-ref {
+    color: var(--muted);
+    font-size: 10px;
+    display: block;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .code-content { color: var(--fg); }
+  .code-content .highlight { color: var(--red); font-weight: 500; }
+  .code-content .comment { color: var(--muted); font-style: italic; }
+
+  .trace-annotation {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    padding: 10px 0 10px 16px;
+    border-left: 1px solid var(--border);
+    margin-bottom: 10px;
+    font-weight: 300;
+  }
+
+  .trace-annotation em { color: var(--fg); font-style: normal; }
+
+  .connector { width: 1px; height: 16px; background: var(--border); margin: 0 0 0 24px; }
+
+  .disclaimer-block {
+    margin-top: 24px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .disclaimer-block strong { color: var(--fg); }
+
+  /* ═══════════════════════════════════
+     MANIFESTO + Q&A
+  ═══════════════════════════════════ */
+  .manifesto { padding: 0; }
+
+  .manifesto-text {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    line-height: 1.75;
+    color: var(--fg);
+  }
+
+  .manifesto-text p { margin-bottom: 22px; }
+  .manifesto-text em { font-style: italic; color: var(--blue); }
+
+  .the-question { padding: 16px 0 0; }
+
+  .question-block {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    margin-bottom: -1px;
+  }
+
+  .question-block .q {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .question-block .q-mark { color: var(--blue); font-size: 16px; font-weight: 700; flex-shrink: 0; }
+
+  .question-block .a {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.7;
+    padding-left: 26px;
+  }
+
+  .question-block .a em { color: var(--fg); font-style: normal; }
+
+  /* ═══════════════════════════════════
+     FOOTER
+  ═══════════════════════════════════ */
+  footer { padding: 48px 0; border-top: 1px solid var(--border); }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .footer-left { font-size: 11px; color: var(--muted); letter-spacing: 1px; line-height: 1.8; }
+
+  .footer-left .metro-footnote {
+    display: block; margin-top: 8px;
+    font-size: 10px; color: var(--muted); opacity: 0.5;
+    max-width: 360px; line-height: 1.6;
+  }
+
+  .footer-right { font-size: 11px; color: var(--muted); }
+  .footer-right a { color: var(--blue); text-decoration: none; transition: color 0.2s; }
+  .footer-right a:hover { color: var(--fg); }
+
+  /* ═══════════════════════════════════
+     ANIMATIONS
+  ═══════════════════════════════════ */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.3); } 50% { box-shadow: 0 0 0 8px rgba(192,57,43,0); } }
+
+  @media (max-width: 600px) {
+    .story-card, .question-block { padding: 20px; }
+    .code-block { padding: 14px; font-size: 11px; }
+    .footer-inner { flex-direction: column; }
+    .share-bar { flex-direction: column; align-items: flex-start; }
+    .feed-card-header { padding: 20px; }
+    .feed-card-actions { padding: 10px 20px; }
+    .input-bottom { flex-direction: column; }
+    .hood-input { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ════ METRO LOGO ════ -->
+  <div class="metro-logo-wrap">
+    <svg viewBox="0 0 304 56" xmlns="http://www.w3.org/2000/svg" aria-label="Metro Toronto — six interlocking loops">
+      <g fill="none" stroke="#1B4F72" stroke-width="3">
+        <ellipse cx="28" cy="28" rx="26" ry="20"/>
+        <ellipse cx="76" cy="28" rx="26" ry="20"/>
+        <ellipse cx="124" cy="28" rx="26" ry="20"/>
+        <ellipse cx="172" cy="28" rx="26" ry="20"/>
+        <ellipse cx="220" cy="28" rx="26" ry="20"/>
+        <ellipse cx="268" cy="28" rx="26" ry="20"/>
+      </g>
+      <!-- Weave intersections -->
+      <g stroke="#FAFAF7" stroke-width="6" stroke-linecap="round">
+        <line x1="46" y1="10" x2="58" y2="14"/><line x1="46" y1="46" x2="58" y2="42"/>
+        <line x1="94" y1="10" x2="106" y2="14"/><line x1="94" y1="46" x2="106" y2="42"/>
+        <line x1="142" y1="10" x2="154" y2="14"/><line x1="142" y1="46" x2="154" y2="42"/>
+        <line x1="190" y1="10" x2="202" y2="14"/><line x1="190" y1="46" x2="202" y2="42"/>
+        <line x1="238" y1="10" x2="250" y2="14"/><line x1="238" y1="46" x2="250" y2="42"/>
+      </g>
+      <!-- Redraw "over" arcs at intersections -->
+      <g fill="none" stroke="#1B4F72" stroke-width="3">
+        <!-- Odd loops go over at top -->
+        <path d="M 44 12 Q 52 8 60 12"/>
+        <path d="M 140 12 Q 148 8 156 12"/>
+        <path d="M 236 12 Q 244 8 252 12"/>
+        <!-- Even loops go over at bottom -->
+        <path d="M 44 44 Q 52 48 60 44"/>
+        <path d="M 92 44 Q 100 48 108 44"/>
+        <path d="M 140 44 Q 148 48 156 44"/>
+        <path d="M 188 44 Q 196 48 204 44"/>
+        <path d="M 236 44 Q 244 48 252 44"/>
+      </g>
+    </svg>
+    <div class="metro-label">Municipality of Metropolitan Toronto</div>
+  </div>
+
+  <!-- ════ HEADER ════ -->
+  <header>
+    <div class="version-tag">Public Beta</div>
+    <h1>Toronto <span class="version">2.0</span></h1>
+    <p class="subtitle">
+      Your city runs on code. Zoning bylaws, transit policy, parking minimums — thousands of rules shaping every moment of your day. Most of them, you've never seen.<br><br>
+      Tell us a story. We'll show you the code behind it.
+    </p>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- ════ LIVE FEED ════ -->
+  <section class="feed-section">
+    <div class="feed-header">
+      <div>
+        <div class="section-label" style="margin-bottom:4px">Citizen Traces</div>
+        <div class="feed-count" id="feedCount">Loading stories...</div>
+      </div>
+      <div class="feed-tabs">
+        <button class="feed-tab active" data-sort="recent" onclick="switchTab(this)">Recent</button>
+        <button class="feed-tab" data-sort="popular" onclick="switchTab(this)">Popular</button>
+      </div>
+    </div>
+
+    <div class="feed-list" id="feedList"></div>
+
+    <button class="feed-load-more" id="loadMore" style="display:none" onclick="loadMore()">
+      Load more traces
+    </button>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ════ GENERATOR ════ -->
+  <section class="generator-section">
+    <h2>Now tell us yours.</h2>
+    <p class="subtitle" style="margin-bottom:28px">Share a moment where the city got in your way. Speak it or type it. We'll trace the code in real time.</p>
+
+    <div class="input-area">
+      <textarea class="story-input" id="storyInput" placeholder="I tried to... but then..."></textarea>
+      <button class="mic-btn" id="micBtn" title="Record your story">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="#1B4F72"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="#1B4F72" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="input-bottom">
+      <input type="text" class="hood-input" id="hoodInput" placeholder="Neighbourhood (optional)">
+      <button class="trace-btn" id="traceBtn" onclick="generateTrace()">Trace my story</button>
+    </div>
+
+    <div class="processing" id="processing">
+      <div class="scan-line" id="scanOutput"></div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="result-area" id="resultArea">
+      <div id="resultContent"></div>
+    </div>
+
+    <div class="share-bar" id="shareBar">
+      <span class="share-bar-label">Share your trace</span>
+      <button class="share-btn" onclick="downloadImage()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </button>
+      <button class="share-btn" onclick="shareTwitter()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Share on X
+      </button>
+      <button class="share-btn" onclick="copyTraceText()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Text
+      </button>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ════ MANIFESTO ════ -->
+  <section class="manifesto">
+    <div class="section-label">The Premise</div>
+    <div class="manifesto-text">
+      <p>A city is an operating system. Toronto is running version 1.0 — thousands of rules written over decades, layered on top of each other, full of dependencies nobody wants to touch.</p>
+      <p>We all feel the bugs. The commute that makes no sense. The housing you can't afford. The corner that's been dead for years. But nobody can see the source code. So we blame the city in the abstract — <em>"Toronto is broken"</em> — without ever understanding why, specifically, it's broken.</p>
+      <p>Toronto 2.0 is a project to make the code visible. You tell us a story — something that frustrated you, confused you, cost you time or money — and we trace it back to the actual provisions, bylaws, and policies that produced that outcome. We show you the code.</p>
+      <p>And then we ask: <em>what if we deleted that line? What might be possible?</em></p>
+      <p>Over time, story by story, we start to see what a rewritten operating system could look like — not designed by consultants or politicians, but debugged by the people who actually run on it every day.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ════ Q&A ════ -->
+  <section class="the-question">
+    <div class="section-label">You're going to ask</div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>So what do you actually do with this?</span></div>
+      <div class="a">Right now, it's a public experiment. We publish the traces. People share them. And if enough people start seeing <em>the same lines of code</em> showing up across totally different stories — a parent late to pickup, a restaurant that couldn't open, a cyclist who had no safe route — that becomes a pattern. Patterns become conversations. And conversations that point to specific, named provisions are a lot harder to ignore than vague complaints about "the city."</div>
+    </div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>Is this a political project?</span></div>
+      <div class="a">It's a <em>legibility</em> project. We're not advocating for a party, a candidate, or a policy platform. We're making visible the invisible architecture that shapes your daily life. What you do with that visibility is up to you.</div>
+    </div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>Are the traces accurate?</span></div>
+      <div class="a">They're <em>illustrative, not forensic</em>. City systems are deeply interconnected — we're showing you threads worth pulling, not delivering legal analysis. The point isn't precision. It's that your frustrations aren't random. They're authored. Someone wrote the code. And code can be rewritten.</div>
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        TORONTO 2.0 — AN OPEN INQUIRY
+        <span class="metro-footnote">
+          The six loops above are the logo of the Municipality of Metropolitan Toronto (1953–1998) — six cities, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
+        </span>
+      </div>
+      <div class="footer-right">
+        <a href="#">Instagram</a> &nbsp;&middot;&nbsp; <a href="#">About</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════
+const API_BASE = window.location.origin;
+let currentSort = 'recent';
+let currentPage = 1;
+let totalPages = 1;
+let lastTraceData = null;
+let lastStory = '';
+let votedIds = JSON.parse(localStorage.getItem('toronto2_votes') || '[]');
+
+// ══════════════════════════════════════
+// FEED
+// ══════════════════════════════════════
+async function loadFeed(sort = 'recent', page = 1, append = false) {
+  try {
+    const res = await fetch(`${API_BASE}/api/feed?sort=${sort}&page=${page}&limit=5`);
+    const data = await res.json();
+
+    const feedList = document.getElementById('feedList');
+    const feedCount = document.getElementById('feedCount');
+    const loadMoreBtn = document.getElementById('loadMore');
+
+    totalPages = data.pages;
+    feedCount.textContent = `${data.total} ${data.total === 1 ? 'story' : 'stories'} traced`;
+
+    if (data.stories.length === 0 && !append) {
+      feedList.innerHTML = `
+        <div class="feed-empty">
+          No traces yet. Be the first to share your story<br>and see the code behind it.
+        </div>`;
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
+
+    const html = data.stories.map(s => renderFeedCard(s)).join('');
+
+    if (append) {
+      feedList.insertAdjacentHTML('beforeend', html);
+    } else {
+      feedList.innerHTML = html;
+    }
+
+    loadMoreBtn.style.display = page < totalPages ? 'block' : 'none';
+
+  } catch (err) {
+    console.error('Feed load error:', err);
+    document.getElementById('feedList').innerHTML = `
+      <div class="feed-empty">Could not load the feed. The server may be starting up.</div>`;
+  }
+}
+
+function renderFeedCard(story) {
+  const date = new Date(story.created_at + 'Z');
+  const timeAgo = getTimeAgo(date);
+  const traceCount = story.traces?.length || 0;
+  const isVoted = votedIds.includes(story.id);
+
+  const tracesHtml = (story.traces || []).map((t, i) => `
+    <div class="code-block">
+      <span class="code-ref">${esc(t.code_ref)} — ${esc(t.title)}</span>
+      <div class="code-content">
+        ${esc(t.code_content)}
+        <span class="comment">// ${esc(t.code_comment)}</span>
+      </div>
+    </div>
+    <div class="trace-annotation">${esc(t.annotation)}</div>
+    ${i < story.traces.length - 1 ? '<div class="connector"></div>' : ''}
+  `).join('');
+
+  return `
+    <div class="feed-card" id="card-${story.id}">
+      <div class="feed-card-header" onclick="toggleCard('${story.id}')">
+        <div class="feed-card-body">
+          <div class="feed-story">${esc(story.story)}</div>
+          <div class="feed-meta">
+            ${story.neighbourhood ? `<span class="feed-hood">${esc(story.neighbourhood)}</span>` : ''}
+            <span class="feed-date">${timeAgo}</span>
+            <span class="feed-trace-count">${traceCount} provision${traceCount !== 1 ? 's' : ''}</span>
+          </div>
+          ${story.summary ? `<div class="feed-summary-line">${esc(story.summary)}</div>` : ''}
+        </div>
+      </div>
+      <div class="feed-card-trace">
+        ${tracesHtml}
+      </div>
+      <div class="feed-card-actions">
+        <button class="upvote-btn ${isVoted ? 'voted' : ''}" onclick="upvote('${story.id}', this)">
+          ▲ <span>${story.upvotes}</span>
+        </button>
+        <button class="expand-btn" onclick="toggleCard('${story.id}')">
+          Show trace ↓
+        </button>
+      </div>
+    </div>`;
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(`card-${id}`);
+  if (!card) return;
+  const isExpanded = card.classList.toggle('expanded');
+  const btn = card.querySelector('.expand-btn');
+  if (btn) btn.textContent = isExpanded ? 'Hide trace ↑' : 'Show trace ↓';
+}
+
+async function upvote(id, btn) {
+  if (votedIds.includes(id)) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/trace/${id}/upvote`, { method: 'POST' });
+    const data = await res.json();
+    btn.querySelector('span').textContent = data.upvotes;
+    btn.classList.add('voted');
+    votedIds.push(id);
+    localStorage.setItem('toronto2_votes', JSON.stringify(votedIds));
+  } catch (e) { console.error('Upvote error:', e); }
+}
+
+function switchTab(el) {
+  document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentSort = el.dataset.sort;
+  currentPage = 1;
+  loadFeed(currentSort, 1);
+}
+
+function loadMore() {
+  currentPage++;
+  loadFeed(currentSort, currentPage, true);
+}
+
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+}
+
+// ══════════════════════════════════════
+// VOICE INPUT
+// ══════════════════════════════════════
+let recognition = null;
+let isRecording = false;
+const micBtn = document.getElementById('micBtn');
+const storyInput = document.getElementById('storyInput');
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-CA';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  let finalTranscript = '';
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    storyInput.value = finalTranscript + interim;
+  };
+
+  recognition.onerror = () => stopRec();
+  recognition.onend = () => { if (isRecording) stopRec(); };
+
+  micBtn.addEventListener('click', () => isRecording ? stopRec() : startRec());
+} else {
+  micBtn.style.display = 'none';
+}
+
+function startRec() {
+  isRecording = true;
+  micBtn.classList.add('recording');
+  storyInput.placeholder = 'Listening...';
+  recognition.start();
+}
+
+function stopRec() {
+  isRecording = false;
+  micBtn.classList.remove('recording');
+  storyInput.placeholder = 'I tried to... but then...';
+  try { recognition.stop(); } catch(e) {}
+}
+
+// ══════════════════════════════════════
+// TRACE GENERATION
+// ══════════════════════════════════════
+const scanMessages = [
+  'Parsing story for geographic and temporal markers...',
+  'Scanning Toronto Municipal Code (4,200+ provisions)...',
+  'Cross-referencing Zoning By-law 569-2013...',
+  'Checking Official Plan policies...',
+  'Reviewing TTC service standards...',
+  'Tracing contributing provisions...',
+];
+
+async function showScan() {
+  const out = document.getElementById('scanOutput');
+  const proc = document.getElementById('processing');
+  proc.classList.add('visible');
+  out.innerHTML = '';
+
+  for (const msg of scanMessages) {
+    const line = document.createElement('div');
+    line.innerHTML = `<span class="active">${msg}</span><span class="scan-cursor"></span>`;
+    out.appendChild(line);
+    await sleep(350 + Math.random() * 250);
+    line.innerHTML = `<span class="done">✓ ${msg}</span>`;
+  }
+
+  const fin = document.createElement('div');
+  fin.innerHTML = `<span class="active" style="font-weight:500">Provisions identified. Generating trace...</span><span class="scan-cursor"></span>`;
+  out.appendChild(fin);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function generateTrace() {
+  const story = storyInput.value.trim();
+  if (!story) return;
+  if (story.length < 20) { showError('Tell us a bit more — even a few sentences help.'); return; }
+
+  lastStory = story;
+  const neighbourhood = document.getElementById('hoodInput').value.trim();
+  const btn = document.getElementById('traceBtn');
+  btn.disabled = true;
+  btn.textContent = 'TRACING...';
+
+  hide('resultArea'); hide('shareBar'); hide('errorMsg');
+
+  const scanP = showScan();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/trace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story, neighbourhood })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    await scanP;
+    await sleep(500);
+
+    lastTraceData = data;
+    document.getElementById('processing').classList.remove('visible');
+    renderResult(data, story);
+
+    // Refresh feed to show new story
+    setTimeout(() => loadFeed(currentSort, 1), 1000);
+
+  } catch (err) {
+    await scanP;
+    document.getElementById('processing').classList.remove('visible');
+    showError(err.message || 'Something went wrong. Try again.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'TRACE MY STORY';
+}
+
+function renderResult(data, story) {
+  const area = document.getElementById('resultArea');
+  const content = document.getElementById('resultContent');
+
+  let html = `
+    <div class="story-card">
+      <div class="story-text">${esc(story)}</div>
+    </div>
+    <div class="trace" style="margin-top:24px">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <span style="width:6px;height:6px;background:var(--blue);border-radius:50%;display:inline-block"></span>
+        ${data.traces.length} contributing provision${data.traces.length > 1 ? 's' : ''} identified
+      </div>`;
+
+  data.traces.forEach((t, i) => {
+    html += `
+      <div class="result-trace-card" data-index="${i}">
+        <div class="code-block">
+          <span class="code-ref">${esc(t.code_ref)} — ${esc(t.title)}</span>
+          <div class="code-content">
+            ${esc(t.code_content)}
+            <span class="comment">// ${esc(t.code_comment)}</span>
+          </div>
+        </div>
+        <div class="trace-annotation">${esc(t.annotation)}</div>
+        ${i < data.traces.length - 1 ? '<div class="connector"></div>' : ''}
+      </div>`;
+  });
+
+  if (data.summary) {
+    html += `
+      <div class="result-trace-card" data-index="${data.traces.length}" style="margin-top:20px">
+        <div class="disclaimer-block">
+          <strong>The pattern:</strong> ${esc(data.summary)}<br><br>
+          <span style="opacity:0.5">These traces are illustrative, not legal analysis. The point isn't precision — it's visibility.</span>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+  content.innerHTML = html;
+  area.classList.add('visible');
+
+  const cards = content.querySelectorAll('.result-trace-card');
+  cards.forEach((c, i) => setTimeout(() => c.classList.add('revealed'), 150 + i * 350));
+  setTimeout(() => document.getElementById('shareBar').classList.add('visible'), 150 + cards.length * 350 + 200);
+  setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+}
+
+// ══════════════════════════════════════
+// SHARE
+// ══════════════════════════════════════
+async function downloadImage() {
+  try {
+    const canvas = await html2canvas(document.getElementById('resultArea'), {
+      backgroundColor: '#FAFAF7', scale: 2, useCORS: true, logging: false
+    });
+    const link = document.createElement('a');
+    link.download = 'toronto-2-trace.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) { copyTraceText(); }
+}
+
+function shareTwitter() {
+  if (!lastTraceData) return;
+  const s = lastTraceData.summary || 'My city frustration, traced back to the source code.';
+  const text = encodeURIComponent(`${s}\n\nTrace your own story → toronto2.ca`);
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+}
+
+function copyTraceText() {
+  if (!lastTraceData || !lastStory) return;
+  let text = `MY TORONTO 2.0 TRACE\n\n"${lastStory}"\n\n`;
+  lastTraceData.traces.forEach((t, i) => {
+    text += `[${i + 1}] ${t.code_ref} — ${t.title}\n${t.annotation}\n\n`;
+  });
+  if (lastTraceData.summary) text += `THE PATTERN: ${lastTraceData.summary}\n\n`;
+  text += `— toronto2.ca`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target.closest('.share-btn');
+    if (btn) { const o = btn.innerHTML; btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = o, 1500); }
+  });
+}
+
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function hide(id) { document.getElementById(id)?.classList.remove('visible'); }
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+storyInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateTrace(); }
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+loadFeed();
+</script>
+
+</body>
+</html>
