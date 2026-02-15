@@ -46,15 +46,26 @@ const SOURCES = {
 
   zoning_bylaw: {
     name: 'Zoning By-law 569-2013',
-    // The zoning bylaw is split into many parts/articles
     baseUrl: 'https://www.toronto.ca/zoning/bylaw_amendments/ZBL_NewProvision.htm',
     pdfUrls: [
-      // Key sections that affect daily life most
-      { url: 'https://www.toronto.ca/legdocs/municode/zoning/Ch5.pdf', chapter: 'Article 5', title: 'Residential Zones' },
-      { url: 'https://www.toronto.ca/legdocs/municode/zoning/Ch10.pdf', chapter: 'Article 10', title: 'Parking' },
-      { url: 'https://www.toronto.ca/legdocs/municode/zoning/Ch15.pdf', chapter: 'Article 15', title: 'Parking Standards' },
-      { url: 'https://www.toronto.ca/legdocs/municode/zoning/Ch200.pdf', chapter: 'Article 200', title: 'General Provisions' },
-      { url: 'https://www.toronto.ca/legdocs/municode/zoning/Ch800.pdf', chapter: 'Article 800', title: 'Definitions' },
+      // Volume 1: Chapters 1-800 (all the main regulations)
+      {
+        url: 'https://www.toronto.ca/legdocs/bylaws/2013/law0569-schedule-a-vol1-ch1-800.pdf',
+        chapter: 'Zoning By-law 569-2013 Vol. 1',
+        title: 'Chapters 1-800 (Administration, Zones, Parking, General Provisions, Definitions)'
+      },
+      // Volume 2: Exceptions Part 1
+      {
+        url: 'https://www.toronto.ca/legdocs/bylaws/2013/law0569-schedule-a-vol2-ch900-part1.pdf',
+        chapter: 'Zoning By-law 569-2013 Vol. 2',
+        title: 'Exceptions Part 1'
+      },
+      // Older consolidated version (has useful standalone structure)
+      {
+        url: 'https://www.toronto.ca/wp-content/uploads/2018/07/97ec-City-Planning-Zoning-Zoning-By-law-Part-1.pdf',
+        chapter: 'Zoning By-law 569-2013 Consolidated',
+        title: 'Office Consolidation (Chapters 1-80)'
+      },
     ]
   },
 
