@@ -82,7 +82,7 @@ const SOURCES = {
 // ══════════════════════════════════════
 
 async function fetchPage(url) {
-  const cacheKey = Buffer.from(url).toString('base64').slice(0, 60);
+  const cacheKey = require('crypto').createHash('md5').update(url).digest('hex');
   const cachePath = path.join(CACHE_DIR, `${cacheKey}.html`);
 
   if (fs.existsSync(cachePath)) {
@@ -98,7 +98,7 @@ async function fetchPage(url) {
 }
 
 async function fetchPdf(url) {
-  const cacheKey = Buffer.from(url).toString('base64').slice(0, 60);
+  const cacheKey = require('crypto').createHash('md5').update(url).digest('hex');
   const cachePath = path.join(CACHE_DIR, `${cacheKey}.pdf`);
 
   if (fs.existsSync(cachePath)) {
