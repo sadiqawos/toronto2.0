@@ -14,16 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '10kb' }));
 app.use(cors());
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"],
-    }
-  }
+  contentSecurityPolicy: false,
 }));
 
 // Rate limiting — generous for browsing, tighter for trace generation

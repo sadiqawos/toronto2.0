@@ -647,6 +647,25 @@
     max-width: 360px; line-height: 1.6;
   }
 
+  .footer-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .footer-meta .metro-footnote {
+    margin-top: 0;
+  }
+
+  .footer-metro-logo {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    border-radius: 4px;
+  }
+
   .footer-right { font-size: 11px; color: var(--muted); }
   .footer-right a { color: var(--blue); text-decoration: none; transition: color 0.2s; }
   .footer-right a:hover { color: var(--fg); }
@@ -794,12 +813,15 @@
     <div class="footer-inner">
       <div class="footer-left">
         TORONTO 2.0 — AN OPEN INQUIRY
-        <span class="metro-footnote">
-          The five loops above are the logo of the Municipality of Metropolitan Toronto (1953–1998) — five rings, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
-        </span>
+        <div class="footer-meta">
+          <span class="metro-footnote">
+            The five loops above are the logo of the Municipality of Metropolitan Toronto (1953-1998) — five rings, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
+          </span>
+          <img src="metro-logo.png" alt="Municipality of Metropolitan Toronto logo" class="footer-metro-logo">
+        </div>
       </div>
       <div class="footer-right">
-        <a href="#">Instagram</a> &nbsp;&middot;&nbsp; <a href="#">About</a>
+        A <a href="https://daem-labs.com/" target="_blank" rel="noopener">Daem Labs</a> experiment
       </div>
     </div>
   </footer>
