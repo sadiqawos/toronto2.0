@@ -1,7 +1,5 @@
 # Toronto 2.0
 
-**Trace the code behind your city.**
-
 Citizens share stories about their frustrations with Toronto. We trace each story back to the specific municipal bylaws, zoning provisions, and policies that caused it.
 
 ## Setup
