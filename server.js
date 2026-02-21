@@ -359,6 +359,11 @@ app.get('/api/codes/stats', (req, res) => {
   res.json(codesDb.getCodeStats());
 });
 
+// About page
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
