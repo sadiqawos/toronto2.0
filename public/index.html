@@ -84,7 +84,6 @@
     color: var(--blue);
     border: 1px solid var(--blue);
     padding: 4px 10px;
-    margin-bottom: 36px;
     animation: fadeIn 0.8s 0.15s ease both;
   }
 
@@ -696,7 +695,10 @@
 <div class="container">
   <!-- ════ HEADER ════ -->
   <header>
-    <div class="version-tag">Public Beta</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px">
+      <div class="version-tag" style="margin-bottom:0">Public Beta</div>
+      <a href="/feed" style="font-size:11px;letter-spacing:1px;color:var(--blue);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">Community Feed →</a>
+    </div>
     <h1>Toronto <span class="version">2.0</span></h1>
     <p class="subtitle">
       Your city runs on code. Zoning bylaws, transit policy, parking minimums — thousands of rules shaping every moment of your day. Most of them, you've never seen.<br><br>

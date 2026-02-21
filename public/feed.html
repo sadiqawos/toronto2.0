@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toronto 2.0 — Community Feed</title>
+<meta name="description" content="Torontonians share their frustrations. We find the specific bylaw behind each one.">
+<meta property="og:title" content="Toronto 2.0">
+<meta property="og:description" content="Every frustration has a bylaw. Find yours.">
+<link rel="icon" type="image/svg+xml" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --bg-alt: #EFEEEB;
+    --fg: #1C1917;
+    --muted: #8B8680;
+    --muted-light: #B5B0A8;
+    --blue: #1B4F72;
+    --blue-mid: #2874A6;
+    --blue-light: #D4E6F1;
+    --blue-pale: #EBF2F8;
+    --red: #C0392B;
+    --red-pale: #FADBD8;
+    --code-bg: #F3F1ED;
+    --card-bg: #FFFFFF;
+    --border: #DEDBD5;
+    --border-light: #ECEAE5;
+    --upvote: #8B8680;
+    --upvote-active: #1B4F72;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══════════════════════════════════
+     TOP BAR
+  ═══════════════════════════════════ */
+  .topbar {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--fg);
+  }
+
+  .topbar-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-logo em {
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+  }
+
+  .topbar-tagline {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  .topbar-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .topbar-link {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .topbar-link:hover { color: var(--blue); }
+
+  /* ═══════════════════════════════════
+     MAIN CONTAINER
+  ═══════════════════════════════════ */
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 16px 20px 60px;
+  }
+
+  /* ═══════════════════════════════════
+     COMPOSE BAR (collapsed)
+  ═══════════════════════════════════ */
+  .compose-bar {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    transition: all 0.3s;
+  }
+
+  .compose-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .compose-trigger:hover { background: var(--bg-alt); }
+
+  .compose-trigger .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .compose-trigger .avatar svg { width: 16px; height: 16px; }
+
+  .compose-prompt {
+    flex: 1;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .compose-bar.open .compose-trigger { display: none; }
+
+  /* ═══════════════════════════════════
+     COMPOSE (expanded)
+  ═══════════════════════════════════ */
+  .compose-expanded {
+    display: none;
+    padding: 18px;
+  }
+
+  .compose-bar.open .compose-expanded { display: block; animation: fadeIn 0.2s ease; }
+
+  .compose-expanded textarea {
+    width: 100%;
+    min-height: 100px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px;
+    font-style: italic;
+    padding: 16px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.3s;
+    line-height: 1.6;
+  }
+
+  .compose-expanded textarea:focus { border-color: var(--blue); }
+  .compose-expanded textarea::placeholder { color: var(--muted-light); }
+
+  .compose-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .compose-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .compose-hood {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 300;
+    padding: 9px 12px;
+    outline: none;
+    width: 180px;
+    transition: border-color 0.3s;
+  }
+
+  .compose-hood:focus { border-color: var(--blue); }
+  .compose-hood::placeholder { color: var(--muted-light); }
+
+  .mic-btn-sm {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .mic-btn-sm:hover { border-color: var(--blue); background: var(--blue-pale); }
+  .mic-btn-sm.recording { background: var(--red); border-color: var(--red); animation: micPulse 1.5s infinite; }
+  .mic-btn-sm svg { width: 14px; height: 14px; }
+  .mic-btn-sm.recording svg path { fill: white; }
+
+  .compose-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover { border-color: var(--fg); color: var(--fg); }
+
+  .btn-post {
+    background: var(--blue);
+    border: none;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-post:hover { background: var(--blue-mid); }
+  .btn-post:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Example chips */
+  .compose-examples {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .compose-examples-label {
+    width: 100%;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-bottom: 2px;
+  }
+
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .chip:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ═══════════════════════════════════
+     SORT BAR
+  ═══════════════════════════════════ */
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0;
+    margin-bottom: 4px;
+  }
+
+  .sort-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+
+  .sort-btn:hover { background: var(--bg-alt); color: var(--fg); }
+  .sort-btn.active { background: var(--bg-alt); color: var(--fg); font-weight: 500; }
+
+  .sort-count {
+    font-size: 11px;
+    color: var(--muted-light);
+    margin-left: auto;
+    font-weight: 300;
+  }
+
+  /* ═══════════════════════════════════
+     FEED — Post Cards
+  ═══════════════════════════════════ */
+  .feed { display: flex; flex-direction: column; gap: 8px; }
+
+  .post {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: border-color 0.15s;
+    display: flex;
+  }
+
+  .post:hover { border-color: #C8C4BD; }
+
+  .post-votes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 2px 14px 10px;
+    min-width: 44px;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+
+  .vote-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--upvote);
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vote-btn:hover { color: var(--upvote-active); }
+  .vote-btn.voted { color: var(--upvote-active); }
+  .vote-btn svg { width: 16px; height: 16px; }
+
+  .vote-count {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .post-body {
+    flex: 1;
+    padding: 14px 16px 14px 8px;
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .post-hood {
+    font-size: 11px;
+    color: var(--blue);
+    font-weight: 400;
+  }
+
+  .post-dot { color: var(--muted-light); font-size: 8px; }
+  .post-time { font-size: 11px; color: var(--muted-light); font-weight: 300; }
+
+  .post-rule-count {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .post-story {
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--fg);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post.expanded .post-story { -webkit-line-clamp: unset; }
+
+  .post-summary {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .post-trace {
+    display: none;
+    padding: 16px 16px 16px 8px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .post.expanded .post-trace { display: block; animation: fadeIn 0.25s ease; }
+
+  .post-actions {
+    display: flex;
+    gap: 16px;
+    padding: 8px 16px 12px 8px;
+  }
+
+  .action-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { background: var(--bg-alt); color: var(--fg); }
+  .action-btn svg { width: 14px; height: 14px; }
+
+  /* ═══════════════════════════════════
+     Processing / Error / Result
+  ═══════════════════════════════════ */
+  .processing {
+    display: none;
+    padding: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .processing.visible { display: block; animation: fadeIn 0.2s ease; }
+
+  .scan-line { font-size: 12px; color: var(--muted); line-height: 2.2; font-weight: 300; }
+  .scan-line .active { color: var(--blue); }
+  .scan-line .done { color: var(--muted-light); }
+  .scan-cursor {
+    display: inline-block;
+    width: 7px; height: 14px;
+    background: var(--blue);
+    margin-left: 4px;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  .error-msg {
+    display: none;
+    margin-bottom: 8px;
+    padding: 14px 18px;
+    border: 1px solid var(--red);
+    background: var(--red-pale);
+    font-size: 13px;
+    color: var(--red);
+  }
+
+  .error-msg.visible { display: block; }
+
+  .result-post { display: none; margin-bottom: 8px; }
+  .result-post.visible { display: block; animation: slideUp 0.4s ease; }
+  .result-post .post { border-color: var(--blue-light); background: #FCFCFA; }
+  .result-post .post.expanded .post-trace { display: block; }
+
+  .result-share {
+    display: none;
+    padding: 12px 18px;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-light);
+    margin-bottom: 8px;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .result-share.visible { display: flex; animation: fadeIn 0.3s ease; }
+
+  .result-share-label {
+    font-size: 11px;
+    color: var(--blue);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .share-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 2px;
+  }
+
+  .share-btn:hover { background: var(--blue); color: white; }
+
+  /* ═══════════════════════════════════
+     LOAD MORE
+  ═══════════════════════════════════ */
+  .load-more {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .load-more:hover { border-color: var(--blue); color: var(--blue); }
+
+  .feed-empty {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .feed-empty strong { color: var(--fg); font-weight: 500; }
+
+  /* ═══════════════════════════════════
+     SHARED: Code Blocks
+  ═══════════════════════════════════ */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    line-height: 1.8;
+    overflow-x: auto;
+    transition: border-color 0.15s;
+  }
+
+  .code-block:hover { border-left-color: var(--fg); }
+
+  .code-ref {
+    color: var(--muted);
+    font-size: 10px;
+    display: block;
+    margin-bottom: 4px;
+    letter-spacing: 0.8px;
+  }
+
+  .code-content { color: var(--fg); }
+  .code-content .comment { color: var(--muted); font-style: italic; }
+
+  .trace-annotation {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+    padding: 8px 0 8px 14px;
+    border-left: 1px solid var(--border);
+    margin-bottom: 8px;
+    font-weight: 300;
+  }
+
+  .connector { width: 1px; height: 10px; background: var(--border); margin: 0 0 0 20px; }
+
+  .pattern-line {
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-light);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+
+  .pattern-line strong { color: var(--blue); }
+  .pattern-line .note {
+    display: block;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ═══════════════════════════════════
+     FOOTER
+  ═══════════════════════════════════ */
+  .footer-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  footer {
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .footer-left { font-size: 11px; color: var(--muted); letter-spacing: 1px; line-height: 1.8; }
+
+  .footer-left .metro-footnote {
+    display: block; margin-top: 8px;
+    font-size: 10px; color: var(--muted); opacity: 0.5;
+    max-width: 360px; line-height: 1.6;
+  }
+
+  .footer-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .footer-metro-logo {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    border-radius: 4px;
+  }
+
+  .footer-right { font-size: 11px; color: var(--muted); }
+  .footer-right a { color: var(--blue); text-decoration: none; transition: color 0.2s; }
+  .footer-right a:hover { color: var(--fg); }
+
+  /* ═══════════════════════════════════
+     ANIMATIONS
+  ═══════════════════════════════════ */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.3); } 50% { box-shadow: 0 0 0 8px rgba(192,57,43,0); } }
+
+  @media (max-width: 600px) {
+    .topbar-tagline { display: none; }
+    .compose-footer { flex-direction: column; align-items: stretch; }
+    .compose-left { flex-direction: column; }
+    .compose-hood { width: 100%; }
+    .compose-right { justify-content: flex-end; }
+    .post-votes { min-width: 36px; padding: 14px 0 14px 6px; }
+    .post-body { padding: 14px 12px 14px 4px; }
+    .result-share { flex-direction: column; align-items: flex-start; }
+    .footer-inner { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ TOP BAR ════ -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="topbar-brand">
+      <span class="topbar-logo">Toronto <em>2.0</em></span>
+      <span class="topbar-tagline">Find the rule behind the frustration</span>
+    </a>
+    <div class="topbar-links">
+      <a href="/" class="topbar-link">About</a>
+      <a href="/feed" class="topbar-link" style="color:var(--blue)">Feed</a>
+      <a href="https://www.instagram.com" target="_blank" class="topbar-link">Instagram</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+
+  <!-- Compose bar -->
+  <div class="compose-bar" id="composeBar">
+    <div class="compose-trigger" id="composeTrigger">
+      <div class="avatar">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#1B4F72" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="#1B4F72" stroke-width="1.5"/></svg>
+      </div>
+      <span class="compose-prompt">What's frustrating you about Toronto?</span>
+    </div>
+
+    <div class="compose-expanded">
+      <textarea id="storyInput" placeholder="I tried to... but then..."></textarea>
+      <div class="compose-examples" id="exampleChips">
+        <span class="compose-examples-label">Or try one of these</span>
+        <span class="chip" data-story="The streetcar just never came. I stood at the stop for 25 minutes in January, no shelter, no updates, and ended up late for work again.">Waited 25 min for a streetcar</span>
+        <span class="chip" data-story="I wanted to open a small bakery on my street but the zoning doesn't allow it, even though there's an empty storefront that's been vacant for three years.">Can't open a bakery on my street</span>
+        <span class="chip" data-story="The city plow pushed a wall of snow onto my driveway and knocked over my fence. When I called 311 they said there's nothing they can do.">Plow destroyed my fence</span>
+        <span class="chip" data-story="My neighbours do construction work starting at 7am on Saturdays. I called about the noise and was told it's perfectly legal.">Construction at 7am Saturday</span>
+      </div>
+      <div class="compose-footer">
+        <div class="compose-left">
+          <input type="text" class="compose-hood" id="hoodInput" placeholder="Neighbourhood (optional)">
+          <button class="mic-btn-sm" id="micBtn" title="Speak your story">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="#1B4F72"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="#1B4F72" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="compose-right">
+          <button class="btn-cancel" id="btnCancel">Cancel</button>
+          <button class="btn-post" id="btnPost">Find the rules</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing -->
+  <div class="processing" id="processing">
+    <div class="scan-line" id="scanOutput"></div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Result -->
+  <div class="result-post" id="resultPost"></div>
+
+  <div class="result-share" id="resultShare">
+    <span class="result-share-label">Share what you found</span>
+    <button class="share-btn" id="btnDownload">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Image
+    </button>
+    <button class="share-btn" id="btnTwitter">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Share on X
+    </button>
+    <button class="share-btn" id="btnCopy">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy
+    </button>
+  </div>
+
+  <!-- Sort bar -->
+  <div class="sort-bar">
+    <button class="sort-btn active" data-sort="recent" id="sortRecent">New</button>
+    <button class="sort-btn" data-sort="popular" id="sortPopular">Top</button>
+    <span class="sort-count" id="feedCount"></span>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed" id="feedList"></div>
+
+  <button class="load-more" id="loadMore" style="display:none">Load more</button>
+</div>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <div class="footer-wrap">
+    <div class="footer-inner">
+      <div class="footer-left">
+        TORONTO 2.0 — AN OPEN INQUIRY
+        <div class="footer-meta">
+          <span class="metro-footnote">
+            The five loops above are the logo of the Municipality of Metropolitan Toronto (1953–1998) — five rings, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
+          </span>
+          <img src="metro-logo.png" alt="Municipality of Metropolitan Toronto logo" class="footer-metro-logo">
+        </div>
+      </div>
+      <div class="footer-right">
+        A <a href="https://daem-labs.com/" target="_blank" rel="noopener">Daem Labs</a> experiment
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════
+var API_BASE = window.location.origin;
+var currentSort = 'recent';
+var currentPage = 1;
+var totalPages = 1;
+var lastTraceData = null;
+var lastStory = '';
+var votedIds = [];
+try { votedIds = JSON.parse(localStorage.getItem('t2_votes') || '[]'); } catch(e) {}
+
+// ══════════════════════════════════════
+// COMPOSE BAR
+// ══════════════════════════════════════
+var composeBar = document.getElementById('composeBar');
+var composeTrigger = document.getElementById('composeTrigger');
+var storyInput = document.getElementById('storyInput');
+
+composeTrigger.addEventListener('click', function() {
+  composeBar.classList.add('open');
+  setTimeout(function() { storyInput.focus(); }, 100);
+});
+
+document.getElementById('btnCancel').addEventListener('click', function() {
+  composeBar.classList.remove('open');
+  storyInput.value = '';
+});
+
+document.getElementById('btnPost').addEventListener('click', generateTrace);
+document.getElementById('loadMore').addEventListener('click', loadMore);
+document.getElementById('sortRecent').addEventListener('click', function() { switchSort(this); });
+document.getElementById('sortPopular').addEventListener('click', function() { switchSort(this); });
+document.getElementById('btnDownload').addEventListener('click', downloadImage);
+document.getElementById('btnTwitter').addEventListener('click', shareTwitter);
+document.getElementById('btnCopy').addEventListener('click', copyTraceText);
+
+storyInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateTrace(); }
+});
+
+// Example chips
+document.querySelectorAll('.chip').forEach(function(chip) {
+  chip.addEventListener('click', function() {
+    storyInput.value = this.dataset.story;
+    storyInput.focus();
+  });
+});
+
+// ══════════════════════════════════════
+// VOICE
+// ══════════════════════════════════════
+var recognition = null;
+var isRecording = false;
+var micBtn = document.getElementById('micBtn');
+var finalTranscript = '';
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-CA';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+
+  recognition.onresult = function(e) {
+    var interim = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    storyInput.value = finalTranscript + interim;
+  };
+
+  recognition.onerror = function() { stopRec(); };
+  recognition.onend = function() { if (isRecording) stopRec(); };
+  micBtn.addEventListener('click', function() { isRecording ? stopRec() : startRec(); });
+} else {
+  micBtn.style.display = 'none';
+}
+
+function startRec() {
+  finalTranscript = '';
+  isRecording = true;
+  micBtn.classList.add('recording');
+  storyInput.placeholder = 'Listening...';
+  recognition.start();
+}
+
+function stopRec() {
+  isRecording = false;
+  micBtn.classList.remove('recording');
+  storyInput.placeholder = 'I tried to... but then...';
+  try { recognition.stop(); } catch(e) {}
+}
+
+// ══════════════════════════════════════
+// TRACE GENERATION
+// ══════════════════════════════════════
+var scanMessages = [
+  'Reading your story...',
+  'Searching Toronto Municipal Code...',
+  'Checking Zoning By-law 569-2013...',
+  'Reviewing Official Plan...',
+  'Connecting the dots...',
+];
+
+async function generateTrace() {
+  var story = storyInput.value.trim();
+  if (!story) return;
+  if (story.length < 20) { showError('Tell us a bit more — even a couple sentences.'); return; }
+
+  lastStory = story;
+  var neighbourhood = document.getElementById('hoodInput').value.trim();
+  var btn = document.getElementById('btnPost');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+
+  hide('resultPost');
+  hide('resultShare');
+  hide('errorMsg');
+
+  composeBar.classList.remove('open');
+
+  var proc = document.getElementById('processing');
+  var out = document.getElementById('scanOutput');
+  proc.classList.add('visible');
+  out.innerHTML = '';
+
+  for (var i = 0; i < scanMessages.length; i++) {
+    var line = document.createElement('div');
+    line.innerHTML = '<span class="active">' + scanMessages[i] + '</span><span class="scan-cursor"></span>';
+    out.appendChild(line);
+    await sleep(300 + Math.random() * 250);
+    line.innerHTML = '<span class="done">&#10003; ' + scanMessages[i] + '</span>';
+  }
+
+  var fin = document.createElement('div');
+  fin.innerHTML = '<span class="active" style="font-weight:500">Found something...</span><span class="scan-cursor"></span>';
+  out.appendChild(fin);
+
+  try {
+    var res = await fetch(API_BASE + '/api/trace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story: story, neighbourhood: neighbourhood })
+    });
+
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    await sleep(400);
+    proc.classList.remove('visible');
+
+    lastTraceData = data;
+    renderResultPost(data, story, neighbourhood);
+
+    storyInput.value = '';
+    setTimeout(function() { loadFeed(currentSort, 1); }, 1500);
+
+  } catch (err) {
+    proc.classList.remove('visible');
+    showError(err.message || 'Something went wrong. Try again.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Find the rules';
+}
+
+function renderResultPost(data, story, neighbourhood) {
+  var rp = document.getElementById('resultPost');
+
+  var tracesHtml = (data.traces || []).map(function(t, i) {
+    return '<div class="code-block">' +
+      '<span class="code-ref">' + esc(t.code_ref) + ' — ' + esc(t.title) + '</span>' +
+      '<div class="code-content">' + esc(t.code_content) +
+      ' <span class="comment">// ' + esc(t.code_comment) + '</span></div></div>' +
+      '<div class="trace-annotation">' + esc(t.annotation) + '</div>' +
+      (i < data.traces.length - 1 ? '<div class="connector"></div>' : '');
+  }).join('');
+
+  if (data.summary) {
+    tracesHtml += '<div class="pattern-line"><strong>The pattern:</strong> ' + esc(data.summary) +
+      '<span class="note">Illustrative, not legal analysis. Threads worth pulling.</span></div>';
+  }
+
+  rp.innerHTML = '<div class="post expanded">' +
+    '<div class="post-votes">' +
+      '<button class="vote-btn voted"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg></button>' +
+      '<span class="vote-count">1</span>' +
+    '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div class="post-body">' +
+        '<div class="post-meta">' +
+          (neighbourhood ? '<span class="post-hood">' + esc(neighbourhood) + '</span><span class="post-dot">&bull;</span>' : '') +
+          '<span class="post-time">just now</span>' +
+          '<span class="post-dot">&bull;</span>' +
+          '<span class="post-rule-count">' + data.traces.length + ' rule' + (data.traces.length !== 1 ? 's' : '') + ' found</span>' +
+        '</div>' +
+        '<div class="post-story" style="-webkit-line-clamp:unset">' + esc(story) + '</div>' +
+      '</div>' +
+      '<div class="post-trace" style="display:block">' + tracesHtml + '</div>' +
+    '</div>' +
+  '</div>';
+
+  rp.classList.add('visible');
+  document.getElementById('resultShare').classList.add('visible');
+  setTimeout(function() { rp.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+}
+
+// ══════════════════════════════════════
+// FEED
+// ══════════════════════════════════════
+async function loadFeed(sort, page, append) {
+  sort = sort || 'recent';
+  page = page || 1;
+  append = append || false;
+
+  try {
+    var res = await fetch(API_BASE + '/api/feed?sort=' + sort + '&page=' + page + '&limit=10');
+    var data = await res.json();
+
+    var feedList = document.getElementById('feedList');
+    var loadMoreBtn = document.getElementById('loadMore');
+
+    totalPages = data.pages;
+    document.getElementById('feedCount').textContent = data.total + (data.total === 1 ? ' story' : ' stories');
+
+    if (data.stories.length === 0 && !append) {
+      feedList.innerHTML = '<div class="feed-empty"><strong>No stories yet.</strong><br>Be the first to share what frustrates you about Toronto.</div>';
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
+
+    var html = data.stories.map(function(s) { return renderPost(s); }).join('');
+
+    if (append) feedList.insertAdjacentHTML('beforeend', html);
+    else feedList.innerHTML = html;
+
+    attachPostListeners();
+    loadMoreBtn.style.display = page < totalPages ? 'block' : 'none';
+
+  } catch (err) {
+    console.error('Feed error:', err);
+    document.getElementById('feedList').innerHTML = '<div class="feed-empty">Could not load stories.</div>';
+  }
+}
+
+function renderPost(story) {
+  var date = new Date(story.created_at + 'Z');
+  var timeAgo = getTimeAgo(date);
+  var traceCount = story.traces ? story.traces.length : 0;
+  var isVoted = votedIds.indexOf(story.id) !== -1;
+
+  var tracesHtml = (story.traces || []).map(function(t, i) {
+    return '<div class="code-block">' +
+      '<span class="code-ref">' + esc(t.code_ref) + ' — ' + esc(t.title) + '</span>' +
+      '<div class="code-content">' + esc(t.code_content) +
+      ' <span class="comment">// ' + esc(t.code_comment) + '</span></div></div>' +
+      '<div class="trace-annotation">' + esc(t.annotation) + '</div>' +
+      (i < story.traces.length - 1 ? '<div class="connector"></div>' : '');
+  }).join('');
+
+  if (story.summary) {
+    tracesHtml += '<div class="pattern-line"><strong>The pattern:</strong> ' + esc(story.summary) +
+      '<span class="note">Illustrative, not legal analysis.</span></div>';
+  }
+
+  return '<div class="post" data-id="' + story.id + '">' +
+    '<div class="post-votes">' +
+      '<button class="vote-btn ' + (isVoted ? 'voted' : '') + '" data-id="' + story.id + '">' +
+        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg></button>' +
+      '<span class="vote-count">' + story.upvotes + '</span>' +
+    '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div class="post-body" data-id="' + story.id + '">' +
+        '<div class="post-meta">' +
+          (story.neighbourhood ? '<span class="post-hood">' + esc(story.neighbourhood) + '</span><span class="post-dot">&bull;</span>' : '') +
+          '<span class="post-time">' + timeAgo + '</span>' +
+          '<span class="post-dot">&bull;</span>' +
+          '<span class="post-rule-count">' + traceCount + ' rule' + (traceCount !== 1 ? 's' : '') + '</span>' +
+        '</div>' +
+        '<div class="post-story">' + esc(story.story) + '</div>' +
+        (story.summary ? '<div class="post-summary">' + esc(story.summary) + '</div>' : '') +
+      '</div>' +
+      '<div class="post-trace">' + tracesHtml + '</div>' +
+      '<div class="post-actions">' +
+        '<button class="action-btn toggle-btn" data-id="' + story.id + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>' +
+          '<span>Show rules</span></button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function attachPostListeners() {
+  document.querySelectorAll('.post-body').forEach(function(body) {
+    body.addEventListener('click', function() { togglePost(this.dataset.id); });
+  });
+
+  document.querySelectorAll('.toggle-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { togglePost(this.dataset.id); });
+  });
+
+  document.querySelectorAll('.post-votes .vote-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { upvote(this.dataset.id, this); });
+  });
+}
+
+function togglePost(id) {
+  var post = document.querySelector('.post[data-id="' + id + '"]');
+  if (!post) return;
+  var isExpanded = post.classList.toggle('expanded');
+  var toggleBtn = post.querySelector('.toggle-btn span');
+  if (toggleBtn) toggleBtn.textContent = isExpanded ? 'Hide rules' : 'Show rules';
+  var toggleSvg = post.querySelector('.toggle-btn svg');
+  if (toggleSvg) toggleSvg.style.transform = isExpanded ? 'rotate(180deg)' : '';
+}
+
+async function upvote(id, btn) {
+  if (votedIds.indexOf(id) !== -1) return;
+  try {
+    var res = await fetch(API_BASE + '/api/trace/' + id + '/upvote', { method: 'POST' });
+    var data = await res.json();
+    var post = btn.closest('.post');
+    var countEl = post.querySelector('.vote-count');
+    countEl.textContent = data.upvotes;
+    btn.classList.add('voted');
+    votedIds.push(id);
+    try { localStorage.setItem('t2_votes', JSON.stringify(votedIds)); } catch(e) {}
+  } catch (e) { console.error('Vote error:', e); }
+}
+
+function switchSort(el) {
+  document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  currentSort = el.dataset.sort;
+  currentPage = 1;
+  loadFeed(currentSort, 1);
+}
+
+function loadMore() {
+  currentPage++;
+  loadFeed(currentSort, currentPage, true);
+}
+
+// ══════════════════════════════════════
+// SHARE
+// ══════════════════════════════════════
+async function downloadImage() {
+  var el = document.getElementById('resultPost');
+  try {
+    var canvas = await html2canvas(el, { backgroundColor: '#F7F7F5', scale: 2, useCORS: true, logging: false });
+    var link = document.createElement('a');
+    link.download = 'toronto2-trace.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) { copyTraceText(); }
+}
+
+function shareTwitter() {
+  if (!lastTraceData) return;
+  var s = lastTraceData.summary || 'Found the bylaw behind my Toronto frustration.';
+  var text = encodeURIComponent(s + '\n\nFind yours → to2.daem-labs.com');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+}
+
+function copyTraceText() {
+  if (!lastTraceData || !lastStory) return;
+  var text = '"' + lastStory + '"\n\n';
+  lastTraceData.traces.forEach(function(t, i) {
+    text += (i + 1) + '. ' + t.code_ref + ' — ' + t.title + '\n' + t.annotation + '\n\n';
+  });
+  if (lastTraceData.summary) text += 'Pattern: ' + lastTraceData.summary + '\n\n';
+  text += 'to2.daem-labs.com';
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('btnCopy');
+    var orig = btn.innerHTML;
+    btn.textContent = '✓ Copied';
+    setTimeout(function() { btn.innerHTML = orig; }, 1500);
+  });
+}
+
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function hide(id) { var el = document.getElementById(id); if (el) el.classList.remove('visible'); }
+function showError(m) { var el = document.getElementById('errorMsg'); el.textContent = m; el.classList.add('visible'); }
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+function getTimeAgo(date) {
+  var s = Math.floor((new Date() - date) / 1000);
+  if (s < 60) return 'just now';
+  var m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  var h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  var d = Math.floor(h / 24);
+  if (d < 30) return d + 'd ago';
+  return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+loadFeed();
+</script>
+</body>
+</html>
