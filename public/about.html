@@ -48,33 +48,6 @@
   }
 
   /* ═══════════════════════════════════
-     HEADER
-  ═══════════════════════════════════ */
-  header { padding: 48px 0 0; }
-
-  h1 {
-    font-family: 'Instrument Serif', serif;
-    font-weight: 400;
-    font-size: clamp(52px, 10vw, 88px);
-    line-height: 0.95;
-    letter-spacing: -2px;
-    margin-bottom: 16px;
-  }
-
-  h1 .version {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(26px, 5vw, 44px);
-    font-weight: 300;
-    color: var(--muted);
-  }
-
-  .subtitle {
-    font-size: 14px; font-weight: 300;
-    color: var(--muted); line-height: 1.7;
-    max-width: 480px; margin-bottom: 0;
-  }
-
-  /* ═══════════════════════════════════
      MANIFESTO + Q&A
   ═══════════════════════════════════ */
   .manifesto { padding: 0; }
@@ -170,7 +143,7 @@
 
 <div class="container">
   <!-- ════ HEADER ════ -->
-  <header>
+  <header style="padding:48px 0 0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px">
       <div style="display:inline-block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);padding:4px 10px">Public Beta</div>
       <div style="display:flex;gap:8px">
@@ -178,8 +151,8 @@
         <a href="/about" style="font-size:11px;letter-spacing:1px;color:var(--blue);text-decoration:none;border:1px solid var(--blue);padding:4px 12px;transition:all 0.2s">About</a>
       </div>
     </div>
-    <h1>Toronto <span class="version">2.0</span></h1>
-    <p class="subtitle">
+    <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(52px,10vw,88px);line-height:0.95;letter-spacing:-2px;margin-bottom:16px">Toronto <span style="font-family:'JetBrains Mono',monospace;font-size:clamp(26px,5vw,44px);font-weight:300;color:var(--muted)">2.0</span></h1>
+    <p style="font-size:14px;font-weight:300;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:0">
       Your city runs on code. Zoning bylaws, transit policy, parking minimums — thousands of rules shaping every moment of your day. Most of them, you've never seen.<br><br>
       Tell us a story. We'll show you the code behind it.
     </p>
