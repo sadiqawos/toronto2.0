@@ -52,41 +52,6 @@
   ═══════════════════════════════════ */
   header { padding: 48px 0 0; }
 
-  .nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 36px;
-  }
-
-  .version-tag {
-    display: inline-block;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--blue);
-    border: 1px solid var(--blue);
-    padding: 4px 10px;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 12px;
-  }
-
-  .nav-link {
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    padding: 4px 12px;
-    transition: all 0.2s;
-  }
-
-  .nav-link:hover { border-color: var(--blue); color: var(--blue); }
-  .nav-link.active { color: var(--blue); border-color: var(--blue); }
-
   h1 {
     font-family: 'Instrument Serif', serif;
     font-weight: 400;
@@ -198,7 +163,6 @@
   @media (max-width: 600px) {
     .question-block { padding: 20px; }
     .footer-inner { flex-direction: column; }
-    .nav-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
   }
 </style>
 </head>
@@ -207,12 +171,12 @@
 <div class="container">
   <!-- ════ HEADER ════ -->
   <header>
-    <div class="nav-bar">
-      <div class="version-tag">Public Beta</div>
-      <div class="nav-links">
-        <a href="/" class="nav-link">Home</a>
-        <a href="/feed" class="nav-link">Feed</a>
-        <a href="/about" class="nav-link active">About</a>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px">
+      <div style="display:inline-block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);padding:4px 10px">Public Beta</div>
+      <div style="display:flex;gap:8px">
+        <a href="/" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Home</a>
+        <a href="/about" style="font-size:11px;letter-spacing:1px;color:var(--blue);text-decoration:none;border:1px solid var(--blue);padding:4px 12px;transition:all 0.2s">About</a>
+        <a href="/feed" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Feed</a>
       </div>
     </div>
     <h1>Toronto <span class="version">2.0</span></h1>

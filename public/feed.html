@@ -44,73 +44,6 @@
   }
 
   /* ═══════════════════════════════════
-     TOP BAR
-  ═══════════════════════════════════ */
-  .topbar {
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    padding: 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .topbar-inner {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--fg);
-  }
-
-  .topbar-logo {
-    font-family: 'Instrument Serif', serif;
-    font-size: 20px;
-    font-weight: 400;
-    letter-spacing: -0.5px;
-  }
-
-  .topbar-logo em {
-    font-style: normal;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 300;
-    color: var(--muted);
-  }
-
-  .topbar-tagline {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 300;
-    letter-spacing: 0.3px;
-  }
-
-  .topbar-links {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
-
-  .topbar-link {
-    font-size: 11px;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.5px;
-    transition: color 0.2s;
-  }
-
-  .topbar-link:hover { color: var(--blue); }
-
-  /* ═══════════════════════════════════
      MAIN CONTAINER
   ═══════════════════════════════════ */
   .main {
@@ -702,7 +635,6 @@
   @keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.3); } 50% { box-shadow: 0 0 0 8px rgba(192,57,43,0); } }
 
   @media (max-width: 600px) {
-    .topbar-tagline { display: none; }
     .compose-footer { flex-direction: column; align-items: stretch; }
     .compose-left { flex-direction: column; }
     .compose-hood { width: 100%; }
@@ -716,24 +648,17 @@
 </head>
 <body>
 
-<!-- ════ TOP BAR ════ -->
-<div class="topbar">
-  <div class="topbar-inner">
-    <a href="/" class="topbar-brand">
-      <span class="topbar-logo">Toronto <em>2.0</em></span>
-      <span class="topbar-tagline">Find the rule behind the frustration</span>
-    </a>
-    <div class="topbar-links">
-      <a href="/" class="topbar-link">Home</a>
-      <a href="/about" class="topbar-link">About</a>
-      <a href="/feed" class="topbar-link" style="color:var(--blue)">Feed</a>
-      <a href="https://www.instagram.com" target="_blank" class="topbar-link">Instagram</a>
-    </div>
-  </div>
-</div>
-
 <!-- ════ MAIN ════ -->
 <div class="main">
+  <!-- Nav bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px">
+    <div style="display:inline-block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);padding:4px 10px">Public Beta</div>
+    <div style="display:flex;gap:8px">
+      <a href="/" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Home</a>
+      <a href="/about" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">About</a>
+      <a href="/feed" style="font-size:11px;letter-spacing:1px;color:var(--blue);text-decoration:none;border:1px solid var(--blue);padding:4px 12px;transition:all 0.2s">Feed</a>
+    </div>
+  </div>
 
   <!-- Compose bar -->
   <div class="compose-bar" id="composeBar">
