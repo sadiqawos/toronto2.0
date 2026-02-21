@@ -359,11 +359,6 @@ app.get('/api/codes/stats', (req, res) => {
   res.json(codesDb.getCodeStats());
 });
 
-// Feed page
-app.get('/feed', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'feed.html'));
-});
-
 // About page
 app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'about.html'));
