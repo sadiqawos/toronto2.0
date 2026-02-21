@@ -364,6 +364,11 @@ app.get('/feed', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'feed.html'));
 });
 
+// About page
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

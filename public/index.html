@@ -697,7 +697,10 @@
   <header>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px">
       <div class="version-tag" style="margin-bottom:0">Public Beta</div>
-      <a href="/feed" style="font-size:11px;letter-spacing:1px;color:var(--blue);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">Community Feed →</a>
+      <div style="display:flex;gap:8px">
+        <a href="/about" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">About</a>
+        <a href="/feed" style="font-size:11px;letter-spacing:1px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:4px 12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Feed</a>
+      </div>
     </div>
     <h1>Toronto <span class="version">2.0</span></h1>
     <p class="subtitle">

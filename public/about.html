@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Toronto 2.0</title>
+<meta name="description" content="Toronto 2.0 traces city frustrations back to the specific bylaws, zoning codes, and policies that caused them.">
+<meta property="og:title" content="About Toronto 2.0">
+<meta property="og:description" content="Your city runs on code. We show you the source.">
+<link rel="icon" type="image/svg+xml" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --fg: #1C1917;
+    --muted: #8B8680;
+    --muted-light: #B5B0A8;
+    --blue: #1B4F72;
+    --blue-mid: #2874A6;
+    --blue-light: #D4E6F1;
+    --blue-pale: #EBF2F8;
+    --card-bg: #FFFFFF;
+    --border: #DDD9D3;
+    --border-light: #ECEAE5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  .divider { width: 100%; height: 1px; background: var(--border); margin: 56px 0; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  /* ═══════════════════════════════════
+     HEADER
+  ═══════════════════════════════════ */
+  header { padding: 48px 0 0; }
+
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+
+  .version-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    padding: 4px 10px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav-link {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover { border-color: var(--blue); color: var(--blue); }
+  .nav-link.active { color: var(--blue); border-color: var(--blue); }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(52px, 10vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  h1 .version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(26px, 5vw, 44px);
+    font-weight: 300;
+    color: var(--muted);
+  }
+
+  .subtitle {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+    max-width: 480px; margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════
+     MANIFESTO + Q&A
+  ═══════════════════════════════════ */
+  .manifesto { padding: 0; }
+
+  .manifesto-text {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    line-height: 1.75;
+    color: var(--fg);
+  }
+
+  .manifesto-text p { margin-bottom: 22px; }
+  .manifesto-text em { font-style: italic; color: var(--blue); }
+
+  .the-question { padding: 16px 0 0; }
+
+  .question-block {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    margin-bottom: -1px;
+  }
+
+  .question-block .q {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .question-block .q-mark { color: var(--blue); font-size: 16px; font-weight: 700; flex-shrink: 0; }
+
+  .question-block .a {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.7;
+    padding-left: 26px;
+  }
+
+  .question-block .a em { color: var(--fg); font-style: normal; }
+
+  /* ═══════════════════════════════════
+     FOOTER
+  ═══════════════════════════════════ */
+  footer { padding: 48px 0; border-top: 1px solid var(--border); }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .footer-left { font-size: 11px; color: var(--muted); letter-spacing: 1px; line-height: 1.8; }
+
+  .footer-left .metro-footnote {
+    display: block; margin-top: 8px;
+    font-size: 10px; color: var(--muted); opacity: 0.5;
+    max-width: 360px; line-height: 1.6;
+  }
+
+  .footer-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .footer-metro-logo {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    border-radius: 4px;
+  }
+
+  .footer-right { font-size: 11px; color: var(--muted); }
+  .footer-right a { color: var(--blue); text-decoration: none; transition: color 0.2s; }
+  .footer-right a:hover { color: var(--fg); }
+
+  @media (max-width: 600px) {
+    .question-block { padding: 20px; }
+    .footer-inner { flex-direction: column; }
+    .nav-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- ════ HEADER ════ -->
+  <header>
+    <div class="nav-bar">
+      <div class="version-tag">Public Beta</div>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/feed" class="nav-link">Feed</a>
+        <a href="/about" class="nav-link active">About</a>
+      </div>
+    </div>
+    <h1>Toronto <span class="version">2.0</span></h1>
+    <p class="subtitle">
+      Your city runs on code. Zoning bylaws, transit policy, parking minimums — thousands of rules shaping every moment of your day. Most of them, you've never seen.<br><br>
+      Tell us a story. We'll show you the code behind it.
+    </p>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- ════ MANIFESTO ════ -->
+  <section class="manifesto">
+    <div class="section-label">The Premise</div>
+    <div class="manifesto-text">
+      <p>Somewhere in Toronto's thousands of bylaws, zoning codes, and policies, there's a line that explains why your commute doesn't work. Why that corner has been empty for years. Why you can't afford to live near where you grew up.</p>
+      <p>We say "Toronto is broken" but we can never point to what, exactly, is broken. The rules that shape this city are buried in documents nobody reads, written in language nobody speaks, passed in meetings nobody attends.</p>
+      <p>Toronto 2.0 is a project to explore that. You tell us a story, something that frustrated you, confused you, or cost you time or money and we trace it back to the specific rules that made it happen. We show you the fine print behind your lived experience.</p>
+      <p>And then we ask: <em>what if we deleted that line? What might be possible?</em></p>
+      <p>Story by story, a pattern emerges. And when enough people trace their frustrations back to the same rules, those rules get a lot harder to ignore.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ════ Q&A ════ -->
+  <section class="the-question">
+    <div class="section-label">You're going to ask</div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>So what do you actually do with this?</span></div>
+      <div class="a">Right now, it's a public experiment. We publish the traces. People share them. And if enough people start seeing <em>the same lines of code</em> showing up across totally different stories — a parent late to pickup, a restaurant that couldn't open, a cyclist who had no safe route — that becomes a pattern. Patterns become conversations. And conversations that point to specific, named provisions are a lot harder to ignore than vague complaints about "the city."</div>
+    </div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>Is this a political project?</span></div>
+      <div class="a">It's a <em>legibility</em> project. We're not advocating for a party, a candidate, or a policy platform. We're making visible the invisible architecture that shapes your daily life. What you do with that visibility is up to you.</div>
+    </div>
+    <div class="question-block">
+      <div class="q"><span class="q-mark">Q</span><span>Are the traces accurate?</span></div>
+      <div class="a">They're <em>illustrative, not forensic</em>. City systems are deeply interconnected — we're showing you threads worth pulling, not delivering legal analysis. The point isn't precision. It's that your frustrations aren't random. They're authored. Someone wrote the code. And code can be rewritten.</div>
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        TORONTO 2.0 — AN OPEN INQUIRY
+        <div class="footer-meta">
+          <span class="metro-footnote">
+            The five loops above are the logo of the Municipality of Metropolitan Toronto (1953-1998) — five rings, interwoven, each relying on the others. We use it because it represented the people, not the building. We think that's still the right idea.
+          </span>
+          <img src="metro-logo.png" alt="Municipality of Metropolitan Toronto logo" class="footer-metro-logo">
+        </div>
+      </div>
+      <div class="footer-right">
+        A <a href="https://daem-labs.com/" target="_blank" rel="noopener">Daem Labs</a> experiment
+      </div>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
